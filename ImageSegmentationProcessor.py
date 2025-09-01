@@ -51,8 +51,15 @@ class ImageSegmentationProcessor:
     def segment_deeplab(self) -> Dict[str, Any]:
         if self.current_image is None:
             return {"success": False, "error": "No image loaded"}
+
         self.last_result = self.segmenter.segment_oneformer(self.current_image)
-        self.segments = self.last_result["segments"]
+
+        # Only assign segments if success
+        if self.last_result.get("success", False):
+            self.segments = self.last_result.get("segments", [])
+        else:
+            self.segments = []  # fallback to empty list
+
         return self.last_result
     
     def segment_watershed(self) -> Dict[str, Any]:
